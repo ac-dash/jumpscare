@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Responsive Fullscreen Video Canvas</title>
+  <title>Oculus Quest Fullscreen Video Canvas</title>
   <style>
     html, body {
       margin: 0;
@@ -16,10 +16,12 @@
 
     canvas {
       display: block;
+      width: 100%;
+      height: 100%;
     }
 
     video {
-      display: none; /* hide the video element */
+      display: none; /* hide video element */
     }
   </style>
 </head>
@@ -38,29 +40,32 @@
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     }
-
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
+    // Draw video frames to canvas
     function drawFrame() {
-      if (!video.paused && !video.ended) {
+      if (video.readyState >= 2) { // HAVE_CURRENT_DATA or more
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       }
       requestAnimationFrame(drawFrame);
     }
 
     async function startVideo() {
-      video.muted = true; // temporarily muted to guarantee autoplay on Quest
       try {
+        // mute first to allow autoplay
+        video.muted = true;
         await video.play();
-        video.muted = false; // unmute immediately
+        video.muted = false; // unmute after playback starts
         drawFrame();
       } catch (e) {
-        // retry after a short delay
+        // retry after delay if play fails
         setTimeout(startVideo, 200);
       }
     }
 
+    // Only start when video has loaded enough data
     video.addEventListener('canplay', startVideo);
     video.load();
   </script>
