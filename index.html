@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Oculus Quest Fullscreen Video Canvas</title>
+  <title>Quest Fullscreen Video</title>
   <style>
     html, body {
       margin: 0;
@@ -13,61 +13,30 @@
       background: black;
       overflow: hidden;
     }
-
-    canvas {
-      display: block;
+    video {
       width: 100%;
       height: 100%;
-    }
-
-    video {
-      display: none; /* hide video element */
+      object-fit: cover;
     }
   </style>
 </head>
 <body>
-  <video id="video" loop playsinline webkit-playsinline preload="auto">
+  <video id="video" autoplay loop playsinline muted>
     <source src="video.mp4" type="video/mp4">
   </video>
-  <canvas id="canvas"></canvas>
 
   <script>
     const video = document.getElementById('video');
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
 
-    function resizeCanvas() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+    // Once video starts, unmute after short delay
+    video.addEventListener('playing', () => {
+      setTimeout(() => { video.muted = false; }, 500);
+    });
 
-    // Draw video frames to canvas
-    function drawFrame() {
-      if (video.readyState >= 2) { // HAVE_CURRENT_DATA or more
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      }
-      requestAnimationFrame(drawFrame);
-    }
-
-    async function startVideo() {
-      try {
-        // mute first to allow autoplay
-        video.muted = true;
-        await video.play();
-        video.muted = false; // unmute after playback starts
-        drawFrame();
-      } catch (e) {
-        // retry after delay if play fails
-        setTimeout(startVideo, 200);
-      }
-    }
-
-    // Only start when video has loaded enough data
-    video.addEventListener('canplay', startVideo);
-    video.load();
+    // Retry play if initially blocked
+    video.play().catch(() => {
+      setTimeout(() => video.play(), 200);
+    });
   </script>
 </body>
 </html>
