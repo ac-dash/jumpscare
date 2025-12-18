@@ -1,42 +1,42 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Quest Fullscreen Video</title>
-<style>
-html, body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  background: black;
-  overflow: hidden;
-}
-video {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quest Fullscreen Video</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  </style>
 </head>
 <body>
-<video id="video" autoplay loop playsinline muted>
-  <source src="video_1080p.mp4" type="video/mp4">
-</video>
+  <video id="video" autoplay loop playsinline muted>
+    <source src="video.mp4" type="video/mp4">
+  </video>
 
-<script>
-const video = document.getElementById('video');
+  <script>
+    const video = document.getElementById('video');
 
-// Unmute after playback starts
-video.addEventListener('playing', () => {
-  setTimeout(() => { video.muted = false; }, 500);
-});
+    // Once video starts, unmute after short delay
+    video.addEventListener('playing', () => {
+      setTimeout(() => { video.muted = false; }, 500);
+    });
 
-// Retry play if blocked
-video.play().catch(() => {
-  setTimeout(() => video.play(), 200);
-});
-</script>
+    // Retry play if initially blocked
+    video.play().catch(() => {
+      setTimeout(() => video.play(), 200);
+    });
+  </script>
 </body>
 </html>
