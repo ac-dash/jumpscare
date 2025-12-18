@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Oculus Quest Autoplay Video</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+    }
+
+    #video-container {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background: black;
+    }
+  </style>
+</head>
+<body>
+  <div id="video-container">
+    <video
+      id="video"
+      autoplay
+      loop
+      playsinline
+      webkit-playsinline
+      preload="auto"
+    >
+      <source src="video.mp4" type="video/mp4" />
+    </video>
+  </div>
+
+  <script>
+    const video = document.getElementById('video');
+
+    // Oculus Quest Browser (Chromium-based) allows unmuted autoplay
+    // when launched directly and not embedded in an iframe
+    window.addEventListener('load', () => {
+      const playPromise = video.play();
+
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          // Fallback: retry shortly after load
+          setTimeout(() => video.play(), 500);
+        });
+      }
+    });
+  </script>
+</body>
+</html>
