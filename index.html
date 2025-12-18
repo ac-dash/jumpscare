@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Oculus Quest Fullscreen Video</title>
+<title>Quest Fullscreen Video</title>
 <style>
 html, body {
   margin: 0;
@@ -28,16 +28,15 @@ video {
 <script>
 const video = document.getElementById('video');
 
+// Unmute after playback starts
 video.addEventListener('playing', () => {
-  // Unmute after playback starts
   setTimeout(() => { video.muted = false; }, 500);
 });
 
 // Retry play if blocked
-function tryPlay() {
-  video.play().catch(() => setTimeout(tryPlay, 500));
-}
-tryPlay();
+video.play().catch(() => {
+  setTimeout(() => video.play(), 200);
+});
 </script>
 </body>
 </html>
