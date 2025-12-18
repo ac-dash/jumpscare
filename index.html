@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Responsive Fullscreen Video</title>
+  <title>Responsive Fullscreen Video Canvas</title>
   <style>
     html, body {
       margin: 0;
@@ -14,62 +14,55 @@
       overflow: hidden;
     }
 
-    #video-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: black;
-      overflow: hidden;
+    canvas {
+      display: block;
     }
 
     video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      background: black;
+      display: none; /* hide the video element */
     }
   </style>
 </head>
 <body>
-  <div id="video-container">
-    <video id="video" autoplay loop playsinline webkit-playsinline preload="auto">
-      <source src="video.mp4" type="video/mp4" />
-    </video>
-  </div>
+  <video id="video" loop playsinline webkit-playsinline preload="auto">
+    <source src="video.mp4" type="video/mp4">
+  </video>
+  <canvas id="canvas"></canvas>
 
   <script>
     const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
 
-    function tryPlayVideo() {
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          // Retry after 200ms if playback fails
-          setTimeout(() => tryPlayVideo(), 200);
-        });
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function drawFrame() {
+      if (!video.paused && !video.ended) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      }
+      requestAnimationFrame(drawFrame);
+    }
+
+    async function startVideo() {
+      video.muted = true; // temporarily muted to guarantee autoplay on Quest
+      try {
+        await video.play();
+        video.muted = false; // unmute immediately
+        drawFrame();
+      } catch (e) {
+        // retry after a short delay
+        setTimeout(startVideo, 200);
       }
     }
 
-    // Start playback when video metadata is loaded
-    video.addEventListener('loadedmetadata', () => {
-      tryPlayVideo();
-    });
-
-    // Also retry when enough data is loaded to play
-    video.addEventListener('canplay', () => {
-      tryPlayVideo();
-    });
-
-    // Adjust video size on window resize
-    window.addEventListener('resize', () => {
-      video.style.width = window.innerWidth + 'px';
-      video.style.height = window.innerHeight + 'px';
-    });
+    video.addEventListener('canplay', startVideo);
+    video.load();
   </script>
 </body>
 </html>
